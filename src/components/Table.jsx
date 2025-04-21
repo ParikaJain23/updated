@@ -24,16 +24,10 @@ const StickyHeadTable = ({ columns, rows }) => {
     setPage(0);
   };
 
-  const selectedDashboard = localStorage.getItem('selectedDashboard');
-  const role = localStorage.getItem('role');
-
-
-
   const handleEdit = (id) => {
     console.log('Edit user with ID:', id);
     navigate(`/user-management/edit-user/${id}`);
   };
-  // if(selectedDashboard === "userTable" && role === "ADMIN" || role === "READ_ONLY"){
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -53,29 +47,31 @@ const StickyHeadTable = ({ columns, rows }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-          {rows.map((row, rowIndex) => (
-            <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
-              {columns.map(column => {
-                const value = row[column.id];
-                return (
-                  <TableCell key={column.id}>
-                    {column.id === 'action' ? (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        color="primary"
-                        onClick={() => handleEdit(row.id)} 
-                      >
-                        Edit
-                      </Button>
-                    ) : (
-                      value
-                    )}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
+            {rows
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, rowIndex) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
+                  {columns.map(column => {
+                    const value = row[column.id];
+                    return (
+                      <TableCell key={column.id}>
+                        {column.id === 'action' ? (
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            color="primary"
+                            onClick={() => handleEdit(row.id)} 
+                          >
+                            Edit
+                          </Button>
+                        ) : (
+                          value
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -90,7 +86,6 @@ const StickyHeadTable = ({ columns, rows }) => {
       />
     </Paper>
   );
-
 };
 
 export default StickyHeadTable;
