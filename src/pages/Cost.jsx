@@ -12,10 +12,11 @@ const Cost = () => {
   const handleSubmit = async () => {
     const accessToken = localStorage.getItem("accessToken");
     const payload = {
-      iamArn,
+      arnNumber:iamArn,
       accountName,
       accountId
     };
+    console.log("Payload:", payload);
 
     try {
       const response = await fetch("http://localhost:8080/api/accounts", {

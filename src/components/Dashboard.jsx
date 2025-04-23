@@ -73,7 +73,6 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Clear tokens and redirect regardless of response
       localStorage.clear();
       navigate('/login');
     }
@@ -132,11 +131,7 @@ const Dashboard = () => {
         }}
       >
         <Toolbar />
-        {/* <Typography variant="h4" sx={{ mb: 2 }}>
-          Welcome to the CloudKeeper Dashboard
-        </Typography> */}
-
-        {/* Role display for debugging */}
+    
         <Typography variant="body1">Role: {role}</Typography>
       </Box>
     </Box>

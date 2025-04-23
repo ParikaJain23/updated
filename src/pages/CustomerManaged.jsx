@@ -133,6 +133,7 @@ function CustomerManaged() {
                     })}>
                     Next - Add CUR
                 </button>
+                
             </div>
         </div>
     )

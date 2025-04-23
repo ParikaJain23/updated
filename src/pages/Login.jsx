@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import img from "../assets/image.png"; // Image is used in the JSX below
+import img from "../assets/image.png"; 
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const [email, setEmail] = useState(""); // Email is used in the form input
-  const [password, setPassword] = useState(""); // Password is used in the form input
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState(""); 
   const navigate = useNavigate();
 
   const redirectToDashboard = React.useCallback((role) => {
@@ -72,7 +72,7 @@ const Login = () => {
       });
 
       if (response.status === 200) {
-        const { accessToken, refreshToken, role, firstName, lastName } = response.data;
+        const { accessToken, refreshToken, role, firstName, lastName , email } = response.data;
 
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
@@ -80,6 +80,8 @@ const Login = () => {
         localStorage.setItem("firstName", firstName);
         localStorage.setItem("lastName", lastName);
         localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("email", email);
+        
         
         axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 

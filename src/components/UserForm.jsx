@@ -6,13 +6,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const UserForm = ({ isEdit, formData, onChange, onSubmit, roles, accounts }) => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
 
-  // Debug logs
   useEffect(() => {
     console.log("Form Data:", formData);
     console.log("Available Accounts:", accounts);
   }, [formData, accounts]);
 
-  // Initialize selected accounts when form data or accounts change
   useEffect(() => {
     if (Array.isArray(formData.accountIds) && formData.accountIds.length > 0 && accounts.length > 0) {
       const initialSelected = accounts.filter(acc =>
@@ -23,7 +21,6 @@ const UserForm = ({ isEdit, formData, onChange, onSubmit, roles, accounts }) => 
     }
   }, [formData.accountIds, accounts]);
 
-  // Sync selected accounts with form data
   useEffect(() => {
     const ids = selectedAccounts.map(acc => acc.accountId);
     const areEqual = JSON.stringify(ids.sort()) === JSON.stringify(formData.accountIds.sort());
@@ -47,15 +44,14 @@ const UserForm = ({ isEdit, formData, onChange, onSubmit, roles, accounts }) => 
     console.log('Updated Selected Accounts (Remove):', newSelectedAccounts);
   };
   
-  // Filter out accounts that are already selected
   const availableAccounts = accounts.filter(
     acc => !selectedAccounts.some(selected => selected.accountId === acc.accountId)
   );
   
   return (
     <form onSubmit={onSubmit}>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
+      <Grid container spacing={16}>
+        <Grid item xs={22}>
           <TextField
             label="First Name"
             name="firstName"
@@ -65,7 +61,7 @@ const UserForm = ({ isEdit, formData, onChange, onSubmit, roles, accounts }) => 
             required
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={18}>
           <TextField
             label="Last Name"
             name="lastName"
@@ -115,9 +111,8 @@ const UserForm = ({ isEdit, formData, onChange, onSubmit, roles, accounts }) => 
           </TextField>
         </Grid>
 
-        {/* Customer Role Account Selection */}
         {(formData.roleId === 3 || formData.roleId === '3') && (
-          <Grid item xs={12}>
+          <Grid item xs={22}>
             <Box sx={{ border: '1px solid #ccc', borderRadius: 2, p: 2 }}>
               <Typography variant="subtitle1" gutterBottom>Select Accounts for Customer</Typography>
               <Grid container spacing={2}>

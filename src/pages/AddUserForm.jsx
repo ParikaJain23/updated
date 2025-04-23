@@ -91,8 +91,6 @@ const AddUserForm = () => {
       });
       
       console.log("Raw API response:", response.data);
-      
-      // Extract accounts from the response - the accounts are in the data property
       if (response.data && Array.isArray(response.data.data)) {
         console.log("Extracted accounts:", response.data.data);
         setAccounts(response.data.data);
@@ -118,7 +116,6 @@ const AddUserForm = () => {
   };
 
   useEffect(() => {
-    // Fetch accounts when role changes to Customer
     if (formData.roleId === 3 || formData.roleId === '3') {
       fetchAccounts();
     } else {

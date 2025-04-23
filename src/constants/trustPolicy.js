@@ -1,4 +1,4 @@
-const trustPolicy = `{
+ const trustPolicy = `{
     "Version": "2012-10-17",
     "Statement": [
       {
@@ -15,3 +15,5 @@ const trustPolicy = `{
       }
     ]
   }`;
+
+export default trustPolicy;

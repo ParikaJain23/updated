@@ -60,7 +60,7 @@ export const UserTable = () => {
     setShowAddForm(false);
   };
 
-  // Handle navigation to edit user page
+
   const handleEditUser = (userId) => {
     navigate(`/user-management/edit-user/${userId}`);
   };
@@ -72,7 +72,7 @@ export const UserTable = () => {
           href: "/",
           onClick: handleBackToTable,
           style: {
-            fontSize: "3rem",
+            fontSize: "53px",
             fontWeight: "900",
             color: "#1f2937",
           },
@@ -84,7 +84,7 @@ export const UserTable = () => {
           label: "Users",
           href: "/",
           style: {
-            fontSize: "3rem",
+            fontSize: "33px",
             fontWeight: "900",
             color: "#1f2937",
           },

@@ -1,30 +1,38 @@
 import * as React from "react";
 import { useMemo, useState } from "react";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import AppBar from "@mui/material/AppBar";
-import CssBaseline from "@mui/material/CssBaseline";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
+import {
+  Box,
+  Drawer,
+  AppBar,
+  CssBaseline,
+  Toolbar,
+  List,
+  Typography,
+  Divider,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Button,
+  Tooltip,
+  IconButton,
+} from "@mui/material";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccountsOutlined";
 import GridViewIcon from "@mui/icons-material/GridView";
 import TuneIcon from "@mui/icons-material/Tune";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import logo from "./assets/image.png";
-import { Button, Tooltip } from "@mui/material";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import axios from "axios";
 
 const drawerWidth = 240;
+const collapsedWidth = 60;
 
 export default function ClippedDrawer() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
   const [role, setRole] = useState(localStorage.getItem("role") || "GUEST");
   const [firstName, setFirstName] = useState(localStorage.getItem("firstName"));
 
@@ -96,7 +104,12 @@ export default function ClippedDrawer() {
             alignItems: "center",
           }}
         >
-          <img src={logo} alt="CloudKeeper" className="h-8" />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton onClick={() => setCollapsed(!collapsed)} size="small">
+              {collapsed ? <MenuIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+            <img src={logo} alt="CloudKeeper" className="h-8" />
+          </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Tooltip
               title={
@@ -144,11 +157,13 @@ export default function ClippedDrawer() {
       <Drawer
         variant="permanent"
         sx={{
-          width: drawerWidth,
+          width: collapsed ? collapsedWidth : drawerWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
+            width: collapsed ? collapsedWidth : drawerWidth,
             boxSizing: "border-box",
+            transition: "width 0.3s",
+            overflowX: "hidden",
           },
         }}
       >
@@ -156,13 +171,26 @@ export default function ClippedDrawer() {
         <Box sx={{ overflow: "auto" }}>
           <List>
             {navItems.map((item) => (
-              <ListItem key={item.text} disablePadding>
+              <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   onClick={() => navigate(item.path)}
                   selected={location.pathname === item.path}
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: collapsed ? "center" : "initial",
+                    px: 2.5,
+                  }}
                 >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: collapsed ? "auto" : 3,
+                      justifyContent: "center",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  {!collapsed && <ListItemText primary={item.text} />}
                 </ListItemButton>
               </ListItem>
             ))}
@@ -171,7 +199,12 @@ export default function ClippedDrawer() {
       </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, backgroundColor: "#f3f4f6" }}
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          backgroundColor: "#f3f4f6",
+          transition: "margin-left 0.3s",
+        }}
       >
         <Toolbar />
         <Outlet />

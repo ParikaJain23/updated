@@ -4,13 +4,14 @@ import { toast } from 'react-toastify';
 
 const CopyButton = ({ textToCopy }) => {
   const handleCopy = () => {
-    navigator.clipboard.writeText(textToCopy).then(() => {
+    navigator.clipboard.writeText(String(textToCopy)).then(() => {
       toast.success('Copied to clipboard!');
     }).catch(err => {
       console.error('Failed to copy: ', err);
       toast.error('Failed to copy!');
     });
   };
+  
 
   return (
     <button

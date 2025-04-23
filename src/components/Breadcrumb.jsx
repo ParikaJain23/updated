@@ -25,11 +25,16 @@ const CustomSeparator = ({ items }) => {
                   e.preventDefault();
                   if (item.onClick) item.onClick();
                 }}
+                sx={item.style} 
               >
                 {item.label}
               </Link>
             ) : (
-              <Typography key={index} color="text.primary">
+              <Typography
+                key={index}
+                color="text.primary"
+                sx={item.style} 
+              >
                 {item.label}
               </Typography>
             )

@@ -8,10 +8,10 @@ import Cost from './pages/Cost';
 import AddUserForm from './pages/AddUserForm';
 import EditUserForm from './pages/EditUserForm';
 import { ToastContainer } from 'react-toastify';
-import AwsServices from './pages/AwsServices';
 import CostExplorer from './pages/CostExplorer';
 import 'react-toastify/dist/ReactToastify.css';
 import NotFound from './components/NotFound';
+import AwsDashboard from './pages/AwsServicesDashboard';
 
 function App() {
   const userRole = localStorage.getItem('role');
@@ -49,7 +49,7 @@ function App() {
           />
           <Route
             path="aws-dashboard"
-            element={hasAccess(['ADMIN', 'CUSTOMER']) ? <AwsServices /> : <Navigate to="/not-authorized" />}
+            element={hasAccess(['ADMIN', 'CUSTOMER']) ? <AwsDashboard /> : <Navigate to="/not-authorized" />}
           />
           <Route
             path="cost-explorer"

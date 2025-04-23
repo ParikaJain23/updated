@@ -4,7 +4,6 @@ const InputField = ({ label, placeholder, value, onChange, required }) => {
   const [touched, setTouched] = useState(false);
 
   useEffect(() => {
-    // Reset error when value changes
     if (value) setTouched(false);
   }, [value]);
 
