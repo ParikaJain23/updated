@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "chrome",
+        "request": "launch",
+        "name": "Debug React Frontend",
+        "url": "http://localhost:3000",  // React dev server
+        "webRoot": "${workspaceFolder}/src",
+        "breakOnLoad": true,
+        "sourceMaps": true
+      }
+    ]
+  }
+  

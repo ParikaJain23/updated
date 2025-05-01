@@ -1,24 +1,29 @@
-import React, { useState, useEffect } from "react";
+
+
+
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import img from "../assets/image.png"; 
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../redux/actions/ authActions";
+import loginFormConfig from "../config/formConfig"; 
+import Form from "../components/FormConfig";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); 
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const redirectToDashboard = React.useCallback((role) => {
+  const redirectToDashboard = useCallback((role) => {
     switch (role) {
       case "ADMIN":
+      case "READ_ONLY":
         navigate("/user-management");
         break;
       case "CUSTOMER":
         navigate("/cost-explorer");
-        break;
-      case "READ_ONLY":
-        navigate("/user-management");
         break;
       default:
         navigate("/not-authorized");
@@ -28,72 +33,38 @@ const Login = () => {
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated");
     const role = localStorage.getItem("role");
-
     if (isAuthenticated && role) {
       redirectToDashboard(role);
     }
   }, [redirectToDashboard]);
 
-  const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!email.trim() || !password.trim()) {
-      toast.error("All fields are required", { autoClose: 1000 });
-      return false;
-    }
-
-    if (!emailRegex.test(email)) {
-      toast.error("Invalid email format", { autoClose: 1000 });
-      return false;
-    }
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters", {
-        autoClose: 1000,
-      });
-      return false;
-    }
-    
-
-    return true;
+  const handleChange = (e, values) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
 
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
-        email,
-        password,
-      });
-
+      const response = await axiosInstance.post("/auth/login", formData);
       if (response.status === 200) {
-        const { accessToken, refreshToken, role, firstName, lastName , email } = response.data;
-
+        const { accessToken, refreshToken, role , id} = response.data;
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("role", role);
-        localStorage.setItem("firstName", firstName);
-        localStorage.setItem("lastName", lastName);
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("email", email);
-        
-        
-        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        localStorage.setItem("userId", id); 
 
-        toast.success("Login successful!", {
-          autoClose: 1000,
-          onClose: () => redirectToDashboard(role),
-        });
+        dispatch(loginSuccess(response.data));
+        toast.success("Login successful!", { autoClose: 1000 });
+        redirectToDashboard(role);
       }
     } catch (err) {
-      toast.error("Login failed!", {
-        autoClose: 1000,
-      });
+      toast.error("Login failed!", { autoClose: 1000 });
     }
   };
 
@@ -103,42 +74,12 @@ const Login = () => {
         <div className="flex justify-center mb-6">
           <img src={img} alt="CloudBalance Logo" className="h-12" />
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
-          >
-            LOGIN
-          </button>
-        </form>
+        <Form
+          config={loginFormConfig}
+          handleSubmit={handleSubmit}
+          handleChange={handleChange}
+          intialValues={formData}
+        />
       </div>
     </div>
   );

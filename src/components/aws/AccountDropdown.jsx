@@ -16,6 +16,5 @@ const AccountDropdown = ({ cloudAccounts, onSelect }) => (
       ))}
     </select>
   );
-  
   export default AccountDropdown;
   

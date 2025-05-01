@@ -1,9 +1,13 @@
+
+
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import UserForm from '../components/UserForm';
+import { useNavigate } from 'react-router-dom';
 import { Card, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
+import UserForm from '../components/User_Management/UserForm';
+import addUserFormConfig from '../config/addUserFormConfig'; 
 
 const AddUserForm = () => {
   const navigate = useNavigate();
@@ -28,7 +32,6 @@ const AddUserForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log(`Field ${name} changed to:`, value);
-    
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -37,7 +40,10 @@ const AddUserForm = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('accessToken');
-      const payload = { ...formData };
+      const payload = {
+        ...formData,
+        accountIds: formData.accountIds.map(id => String(id)),
+      };
 
       if (!token) {
         toast.error("Access token is missing. Please log in again.");
@@ -46,13 +52,13 @@ const AddUserForm = () => {
 
       console.log("Submitting user data:", payload);
 
-      await axios.post('http://localhost:8080/api/users', payload, {
+      const res = await axios.post('http://localhost:8080/api/users', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
-
+      console.log("User added successfully:", res);
       toast.success("User added successfully!");
       setFormData({
         firstName: '',
@@ -86,58 +92,36 @@ const AddUserForm = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/accounts', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      console.log("Raw API response:", response.data);
+      const response = await axiosInstance.get('/accounts');
       if (response.data && Array.isArray(response.data.data)) {
-        console.log("Extracted accounts:", response.data.data);
-        setAccounts(response.data.data);
-      } else if (Array.isArray(response.data)) {
-        console.log("Direct accounts array:", response.data);
-        setAccounts(response.data);
+        setAccounts(response.data.data.map(acc => ({ ...acc, accountId: String(acc.accountId) })));
       } else {
-        console.error("Could not find accounts array in response:", response.data);
-        setAccounts([]);
-        toast.warning("Could not retrieve accounts data");
+        toast.warning("No accounts found.");
       }
     } catch (error) {
+      toast.error('Failed to load accounts');
       console.error("Error fetching accounts:", error);
-      if (error.response && error.response.status === 401) {
-        toast.error('Unauthorized to access accounts.');
-      } else {
-        toast.error('Failed to load accounts');
-      }
-      setAccounts([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (formData.roleId === 3 || formData.roleId === '3') {
-      fetchAccounts();
-    } else {
-      setAccounts([]);
-    }
-  }, [formData.roleId]);
+    fetchAccounts();
+  }, []);
 
   return (
-    <Card sx={{ p: 2, mt: 5 }}>
-      <Typography variant="h5" gutterBottom>
-        Add New User
-      </Typography>
-      
-      {loading && <Typography>Loading...</Typography>}
-      
+    <Card sx={{ maxWidth: 900, mx: 'auto', p: 4, my: 4 }}>
+      <Typography variant="h4" sx={{ mb: 3 }}>Add New User</Typography>
       <UserForm
         isEdit={false}
         formData={formData}
         onChange={handleChange}
         onSubmit={handleSubmit}
+        formConfig={addUserFormConfig}   
         roles={roles}
         accounts={accounts}
+        loading={loading}
       />
     </Card>
   );

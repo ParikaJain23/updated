@@ -25,6 +25,8 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import logo from "./assets/image.png";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import axiosInstance from "./api/axiosInstance";
 
 const drawerWidth = 240;
 const collapsedWidth = 60;
@@ -33,8 +35,8 @@ export default function ClippedDrawer() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const [role, setRole] = useState(localStorage.getItem("role") || "GUEST");
-  const [firstName, setFirstName] = useState(localStorage.getItem("firstName"));
+  const role = useSelector((state) => state.auth.role) || "GUEST";
+  const firstName = useSelector((state) => state.auth.firstName);
 
   const navItems = useMemo(() => {
     const menuItems = {
@@ -58,7 +60,7 @@ export default function ClippedDrawer() {
           icon: <ManageAccountsIcon />,
           path: "/user-management",
         },
-        { text: "Dashboard", icon: <GridViewIcon />, path: "/dashboard" },
+        { text: "Cost Explorer", icon: <TuneIcon />, path: "/cost-explorer" },
         { text: "AWS Services", icon: <TuneIcon />, path: "/aws-dashboard" },
       ],
     };
@@ -70,21 +72,31 @@ export default function ClippedDrawer() {
       const accessToken = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
 
-      if (accessToken && refreshToken) {
-        await axios.post(
-          "http://localhost:8080/api/auth/logout",
-          { refreshToken },
-          { headers: { Authorization: `Bearer ${accessToken}` } }
-        );
+
+      if (!accessToken || !refreshToken) {
+        localStorage.clear();
+        navigate("/login");
+        return;
       }
 
+      await axiosInstance.post(
+        "/auth/logout",
+        { refreshToken },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+  
       localStorage.clear();
       navigate("/login");
     } catch (error) {
       console.error("Error during logout", error);
+      if (error.response && error.response.status === 401) {
+        console.log("Token expired or invalid, logging out...");
+        localStorage.clear();
+        navigate("/login");
+      }
     }
   };
-
+  
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <CssBaseline />

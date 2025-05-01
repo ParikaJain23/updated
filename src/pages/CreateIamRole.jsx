@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import StepBox from "../components/StepBox";
-import CodeBlock from "../components/CodeBlock";
-import RoleDetailsCard from "../components/RoleDetailsCard";
-import InputField from "../components/InputField";
+import StepBox from "../components/onboarding/StepBox";
+import CodeBlock from "../components/onboarding/CodeBlock";
+import RoleDetailsCard from "../components/onboarding/RoleDetailsCard";
+import InputField from "../components/onboarding/InputField";
 import one from "../assets/1.png";
-import CopyButton from "../components/CopyButton";
+import CopyButton from "../components/onboarding/CopyButton";
 import { useNavigate } from "react-router-dom";
 import trustPolicy from "../constants/trustPolicy"; 
 const CreateIamRole = () => {
@@ -178,7 +178,7 @@ const CreateIamRole = () => {
           </button>
           <button
             onClick={() =>
-              navigate("/add-policy", {
+              navigate("/onboarding/customer-managed", {
                 state: {
                   iamArn,
                   accountName,

@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button, Card, CardContent } from "@mui/material";
-import CustomSeparator from "../components/Breadcrumb";
+import CustomSeparator from "../components/User_Management/Breadcrumb";
 import AddUserForm from "./AddUserForm";
 import { Outlet, useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
+import axiosInstance from "../api/axiosInstance";
 
 export const UserTable = () => {
   const navigate = useNavigate();
@@ -20,11 +21,7 @@ export const UserTable = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axiosInstance.get("/users");
 
         const userData = response.data.data.map((user) => ({
           id: user.id,
@@ -59,7 +56,6 @@ export const UserTable = () => {
   const handleBackToTable = () => {
     setShowAddForm(false);
   };
-
 
   const handleEditUser = (userId) => {
     navigate(`/user-management/edit-user/${userId}`);
@@ -134,9 +130,11 @@ export const UserTable = () => {
                 mb: 2,
               }}
             >
-              <Button variant="contained" onClick={() => navigate("add-user")}>
-                + Add New User
-              </Button>
+              {role !== "READ_ONLY" && (
+                <Button variant="contained" onClick={() => navigate("add-user")}>
+                  + Add New User
+                </Button>
+              )}
             </CardContent>
             <div style={{ height: "100%", width: "100%" }}>
               <DataGrid

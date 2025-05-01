@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import AccountDropdown from "../components/AccountDropdown";
-import ServiceTabs from "../components/ServiceTabs";
-import Ec2Table from "../components/Ec2Table";
-import RdsTable from "../components/RdsTable";
+import AccountDropdown from "../components/aws/AccountDropdown";
+import ServiceTabs from "../components/aws/ServiceTabs";
+import Ec2Table from "../components/aws/Ec2Table";
+import RdsTable from "../components/aws/RdsTable";
+import AsgTable from "../components/aws/AsgTable";
+import axiosInstance from "../api/axiosInstance"; 
 
 const AwsServicesDashboard = () => {
   const [cloudAccounts, setCloudAccounts] = useState([]);
@@ -10,28 +12,25 @@ const AwsServicesDashboard = () => {
   const [selectedService, setSelectedService] = useState("EC2");
   const [ec2Data, setEc2Data] = useState([]);
   const [rdsData, setRdsData] = useState([]);
+  const [asgData, setAsgData] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/accounts", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const result = await res.json();
-          Array.isArray(result.data) && setCloudAccounts(result.data);
+        const res = await axiosInstance.get("/accounts");
+        if (Array.isArray(res.data.data)) {
+          setCloudAccounts(res.data.data);
         } else {
-          console.error("Failed to fetch accounts");
+          console.error("Accounts response is not an array");
         }
       } catch (err) {
         console.error("Error fetching accounts:", err);
       }
     };
+
     fetchAccounts();
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,29 +38,34 @@ const AwsServicesDashboard = () => {
 
       setLoading(true);
       try {
-        const endpoint =
+        const roleArn = selectedAccount.arnNumber;
+        const region = "us-east-1";
+
+        const serviceEndpoint =
           selectedService === "EC2"
-            ? `http://localhost:8080/api/ec2/instances?roleArn=${selectedAccount.arnNumber}&region=us-east-1`
-            : `http://localhost:8080/api/aws/rds?roleArn=${selectedAccount.arnNumber}&region=us-east-1`;
+            ? `/ec2/metadata?roleArn=${roleArn}&region=${region}`
+            : selectedService === "RDS"
+            ? `/rds/metadata?roleArn=${roleArn}&region=${region}`
+            : `/asg/metadata?roleArn=${roleArn}&region=${region}`;
 
-        const res = await fetch(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await axiosInstance.get(serviceEndpoint);
 
-        const data = await res.json();
-
-        selectedService === "EC2" ? setEc2Data(data) : setRdsData(data);
+        if (selectedService === "EC2") {
+          setEc2Data(res.data);
+        } else if (selectedService === "RDS") {
+          setRdsData(res.data);
+        } else if (selectedService === "ASG") {
+          setAsgData(res.data);
+        }
       } catch (err) {
         console.error(`${selectedService} fetch error:`, err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, [selectedAccount, selectedService, token]);
+  }, [selectedAccount, selectedService]);
 
   return (
     <div className="p-6 min-h-screen bg-gray-100">
@@ -85,6 +89,10 @@ const AwsServicesDashboard = () => {
 
       {selectedService === "RDS" && selectedAccount && (
         <RdsTable data={rdsData} loading={loading} />
+      )}
+
+      {selectedService === "ASG" && selectedAccount && (
+        <AsgTable data={asgData} loading={loading} />
       )}
     </div>
   );

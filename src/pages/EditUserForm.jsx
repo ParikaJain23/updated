@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, data } from 'react-router-dom';
 import { Card, CircularProgress, Box, Typography } from '@mui/material';
-import UserForm from '../components/UserForm';
+import UserForm from '../components/User_Management/UserForm';
+import axios from 'axios';
 
 const EditUserForm = () => {
     const { id } = useParams(); 
@@ -14,7 +15,6 @@ const EditUserForm = () => {
         email: '',
         password: '',
         accountIds: [],
-        roleName: '',
         roleId: ''
     });
     const [roles, setRoles] = useState([
@@ -33,7 +33,6 @@ const EditUserForm = () => {
                     throw new Error('No authentication token found');
                 }
 
-                // Fetch accounts first
                 const accountsResponse = await fetch('http://localhost:8080/api/accounts', {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -48,7 +47,6 @@ const EditUserForm = () => {
                 const fetchedAccounts = accountsData.data || [];
                 setAccounts(fetchedAccounts);
                 
-                // Then fetch user data
                 const userResponse = await fetch(`http://localhost:8080/api/users/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -65,10 +63,8 @@ const EditUserForm = () => {
                     throw new Error('Invalid user data received');
                 }
                 
-                // Find role ID from role name
                 const userRole = roles.find(role => role.name === userData.data.roleName)?.id;
                 
-                // Ensure accountIds is an array
                 const accountIds = Array.isArray(userData.data.accountIds) 
                     ? userData.data.accountIds 
                     : [];
@@ -80,7 +76,7 @@ const EditUserForm = () => {
                     ...userData.data,
                     roleId: userRole,
                     accountIds: accountIds,
-                    password: '' // Clear password field for security
+                    password: '' 
                 });
                 
             } catch (err) {
@@ -100,31 +96,30 @@ const EditUserForm = () => {
         
         try {
             const token = localStorage.getItem('accessToken');
+            debugger;
             if (!token) {
                 throw new Error('No authentication token found');
             }
             
-            // Prepare data for submission - remove empty password if not changed
             const dataToSubmit = {...userData};
+            delete dataToSubmit.roleName;
+            delete dataToSubmit.lastLogin;
             if (!dataToSubmit.password) {
                 delete dataToSubmit.password;
             }
             
             console.log('Submitting user data:', dataToSubmit);
-            
-            const response = await fetch(`http://localhost:8080/api/users/${id}`, {
-                method: 'PUT',
-                headers: {
+            debugger;
+            const response = await axios.put(
+                `http://localhost:8080/api/users/${id}`,
+                dataToSubmit,
+                {
+                  headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(dataToSubmit)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update user');
-            }
+                  },
+                }
+              );
             
             navigate('/user-management');
         } catch (err) {
@@ -171,6 +166,7 @@ const EditUserForm = () => {
                 onSubmit={handleSubmit}
                 roles={roles}
                 accounts={accounts}
+                
             />
         </Card>
     );

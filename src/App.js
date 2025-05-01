@@ -1,86 +1,78 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ClippedDrawer from './layout';
-import { UserTable } from './pages/UserTable';
-import Login from './pages/Login';
-import CreateIamRole from './pages/CreateIamRole';
-import CustomerManaged from './pages/CustomerManaged';
-import Cost from './pages/Cost';
-import AddUserForm from './pages/AddUserForm';
-import EditUserForm from './pages/EditUserForm';
-import { ToastContainer } from 'react-toastify';
-import CostExplorer from './pages/CostExplorer';
-import 'react-toastify/dist/ReactToastify.css';
-import NotFound from './components/NotFound';
-import AwsDashboard from './pages/AwsServicesDashboard';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Login from "./pages/Login";
+import ClippedDrawer from "./layout";
+import UserTable from "./pages/UserTable";
+import CreateIamRole from "./pages/CreateIamRole";
+import CustomerManaged from "./pages/CustomerManaged";
+import Cost from "./pages/Cost";
+import AddUserForm from "./pages/AddUserForm";
+import EditUserForm from "./pages/EditUserForm";
+import CostExplorer from "./pages/CostExplorer";
+import AwsDashboard from "./pages/AwsServicesDashboard";
+import NotFound from "./components/auth/NotFound";
+import Unauthorized from "./components/auth/NotAuthorized";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
-  const userRole = localStorage.getItem('role');
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-
-  const hasAccess = (allowedRoles) => {
-    return allowedRoles.includes(userRole);
-  };
-
   return (
     <Router>
+      <ToastContainer />
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/not-authorized" element={<Unauthorized />} />
 
-        <Route 
-          path="/" 
-          element={isAuthenticated ? <ClippedDrawer /> : <Navigate to="/login" replace/>}
-        >
-          <Route
-            path="user-management"
-            element={hasAccess(['ADMIN', 'READ_ONLY']) ? <UserTable /> : <Navigate to="/not-authorized" />}
-          />
-          <Route
-            path="user-management/add-user"
-            element={hasAccess(['ADMIN']) ? <AddUserForm /> : <Navigate to="/not-authorized" />}
-          />
-          <Route
-            path="user-management/edit-user/:id"
-            element={hasAccess(['ADMIN']) ? <EditUserForm /> : <Navigate to="/not-authorized" />}
-          />
-          <Route
-            path="onboarding"
-            element={hasAccess(['ADMIN']) ? <CreateIamRole /> : <Navigate to="/not-authorized" />}
-          />
-          <Route
-            path="aws-dashboard"
-            element={hasAccess(['ADMIN', 'CUSTOMER']) ? <AwsDashboard /> : <Navigate to="/not-authorized" />}
-          />
-          <Route
-            path="cost-explorer"
-            element={hasAccess(['ADMIN', 'CUSTOMER']) ? <CostExplorer /> : <Navigate to="/not-authorized" />}
-          />
-          <Route
-            path="add-policy"
-            element={hasAccess(['ADMIN', 'CUSTOMER', 'READ_ONLY']) ? <CustomerManaged /> : <Navigate to="/not-authorized" />}
-          />
-          <Route
-            path="next"
-            element={hasAccess(['ADMIN', 'CUSTOMER', 'READ_ONLY']) ? <Cost /> : <Navigate to="/not-authorized" />}
-          />
-          <Route path="*" element={<NotFound />} />
+        {/* Protected Area */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<ClippedDrawer />}>
+            
+            {/* AWS Dashboard */}
+            <Route path="/aws-dashboard" element={<ProtectedRoute allowedRoles={["ADMIN", "CUSTOMER", "READ_ONLY"]} />}>
+              <Route index element={<AwsDashboard />} />
+            </Route>
+
+            {/* User Management */}
+            <Route path="/user-management" element={<ProtectedRoute allowedRoles={["ADMIN", "READ_ONLY"]} />}>
+              <Route index element={<UserTable />} />
+              <Route path="add-user" element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+                <Route index element={<AddUserForm />} />
+              </Route>
+              <Route path="edit-user/:id" element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+                <Route index element={<EditUserForm />} />
+              </Route>
+            </Route>
+
+            {/* Cost Explorer */}
+            <Route path="/cost-explorer" element={<ProtectedRoute allowedRoles={["ADMIN", "CUSTOMER", "READ_ONLY"]} />}>
+              <Route index element={<CostExplorer />} />
+            </Route>
+
+            {/* Onboarding */}
+            <Route path="/onboarding" element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+              <Route index element={<CreateIamRole />} />
+              <Route path="customer-managed" element={<CustomerManaged />} />
+              <Route path="cost" element={<Cost />} />
+            </Route>
+
+          </Route>
         </Route>
-      </Routes>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={1000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+        {/* Redirect root to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </Router>
   );
 }
 
 export default App;
+
+
+
+

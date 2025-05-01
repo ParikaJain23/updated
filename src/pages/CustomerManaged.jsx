@@ -1,15 +1,17 @@
 import React from 'react'
-import StepBox from '../components/StepBox'
-import CodeBlock from '../components/CodeBlock'
-import CopyButton from '../components/CopyButton'
-import InputField from '../components/InputField'
+import StepBox from '../components/onboarding/StepBox'
+import CodeBlock from '../components/onboarding/CodeBlock'
+import CopyButton from '../components/onboarding/CopyButton'
+import InputField from '../components/onboarding/InputField'
 import img from '../assets/2.png'
 import permission from '../assets/Permission.png'
 import three from '../assets/3.png'
 import four from '../assets/4.png'
-import RoleDetailsCard from '../components/RoleDetailsCard'
+import RoleDetailsCard from '../components/onboarding/RoleDetailsCard'
 import { useLocation, useNavigate } from 'react-router-dom';
-import trustPolicy from '../constants/trustPolicy'
+import trustPolicy from '../constants/trustPolicy2';
+import trustPolicy3 from '../constants/trustPolicy3';
+import trustPolicy4 from '../constants/trustPolicy4';
 
 function CustomerManaged() {
     const location = useLocation();
@@ -27,7 +29,7 @@ function CustomerManaged() {
 
                 <StepBox stepNumber={2}>
                     Click on the <strong>JSON</strong> tab and paste the following policy and click on Next:
-                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '290%' }}>
+                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '230%' }}>
                         <CopyButton textToCopy={trustPolicy} />
                         <CodeBlock code={trustPolicy} />
                     </div>
@@ -47,9 +49,9 @@ function CustomerManaged() {
 
                 <StepBox stepNumber={5}>
                     Click on the <strong>JSON</strong> tab and paste the following policy and click on Next:
-                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '290%' }}>
-                        <CopyButton textToCopy={trustPolicy} />
-                        <CodeBlock code={trustPolicy} />
+                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '250%' }}>
+                        <CopyButton textToCopy={trustPolicy3} />
+                        <CodeBlock code={trustPolicy3} />
                     </div>
                 </StepBox>
 
@@ -67,9 +69,9 @@ function CustomerManaged() {
 
                 <StepBox stepNumber={8}>
                     Click on the <strong>JSON</strong> tab and paste the following policy and click on Next:
-                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '290%' }}>
-                        <CopyButton textToCopy={trustPolicy} />
-                        <CodeBlock code={trustPolicy} />
+                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '120%' }}>
+                        <CopyButton textToCopy={trustPolicy4} />
+                        <CodeBlock code={trustPolicy4} />
                     </div>
                 </StepBox>
 
@@ -107,7 +109,7 @@ function CustomerManaged() {
 
                 <StepBox stepNumber={15}>
                     Click on the <strong>JSON</strong> tab and paste the following policy and click on Next:
-                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '290%' }}>
+                    <div className="relative overflow-y-auto border border-gray-300 rounded-md mt-2 text-blue-900" style={{ maxHeight: '250px', width: '240%' }}>
                         <CopyButton textToCopy={trustPolicy} />
                         <CodeBlock code={trustPolicy} />
                     </div>
@@ -126,9 +128,14 @@ function CustomerManaged() {
                 </StepBox>
             </div>
             <div className="flex justify-between mt-8">
-                <button className="text-blue-500 border-indigo-500 px-4 py-2 rounded">Cancel</button>
+            <button
+            onClick={() => navigate("/onboarding", )}
+            className="text-blue-500 border-indigo-500 px-4 py-2 rounded"
+          >
+            Back
+          </button>
                 <button className="bg-blue-900 text-white px-4 py-2 rounded" 
-                    onClick={() => navigate("/next", {
+                    onClick={() => navigate("/onboarding/cost", {
                         state: { iamArn, accountName, accountId }
                     })}>
                     Next - Add CUR
